@@ -1,0 +1,23 @@
+
+
+*.sqlite3
+
+
+
+# If you're using Django migrations:
+*/migrations/*
+
+# Media files
+media/
+ecom_env/
+info.txt
+.env
+paymentfronend/
+
+
+# If you have environment variables in a .env file, ignore it:
+
+
+
+
+

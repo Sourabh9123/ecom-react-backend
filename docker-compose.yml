@@ -1,0 +1,50 @@
+version: '3' 
+
+services:
+  django:
+    build: .   
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    networks:
+      - my-ecom-network
+
+  ng:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    networks:
+      - my-ecom-network
+
+  react:
+    image: node:alpine
+    # working_dir: /ecommerce_project/paymentfronend
+    working_dir: /paymentfronend      # working dir make sure the every commands get runs inside the same working dir
+    volumes:
+      - ./paymentfronend:/paymentfronend        # this is important code this code taking code from my local machine and coping to docker in dir name paymentfrontend 
+    
+    # command: sh -c "cd /paymentfronend && npm install && npm start"
+    # command: sh -c "pwd && ls && cd /paymentfronend && ls"
+    # command: sh -c "cd /paymentfronend && npm install && npm start "
+    # command: sh -c "cd /paymentfronend && npm install --force && npm start"
+    command: sh -c "npm install --force && npm start"
+
+    # command: sh -c "cd /ecommerce_project/paymentfronend && npm install && npm start"
+
+    ports:
+      - "3000:3000"
+    networks:
+      - my-ecom-network
+  
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=9038
+      - POSTGRES_USER=yourusername  # change 'yourusername' to your desired username
+      - POSTGRES_DB=yourdatabase  # change 'yourdatabase' to your desired database name
+    networks:
+      - my-ecom-network
+
+networks:
+  my-ecom-network:
+    driver: bridge

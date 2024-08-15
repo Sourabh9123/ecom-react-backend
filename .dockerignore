@@ -1,0 +1,16 @@
+# .git
+# __pycache__
+# *.pyc
+# *.pyo
+# *.pyd
+# *.pyc
+# db.sqlite3
+# media/
+# static/
+# venv/
+# *.log
+# *.pot
+# *.mo
+# *.pot
+# *.pot
+# .DS_Store
