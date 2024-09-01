@@ -29,6 +29,7 @@ urlpatterns = [
     path("dhl/api/",include("dhlservice.urls")),
     path("api/shiprocket/",include("shiprocket.urls")),
     path("api/payment/",include("payment.urls")),
+    path("map/",include("map.urls")),
 
     # path('dj-rest-auth/', include('dj_rest_auth.urls')),
     # path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
