@@ -28,11 +28,11 @@ class OrdersView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         user = request.user
 
-        order_items = Orderitem.objects.filter(order__owner=user)
+        order_items = Orderitem.objects.filter(order__owner=user).order_by("-created_at")
         serializer = OrderSerializers(order_items, many=True)
-        print(serializer.data)
+        # print(serializer.data)
 
-        print(order_items)
+        # print(order_items)
         return Response (serializer.data , status=status.HTTP_200_OK)
 
 
