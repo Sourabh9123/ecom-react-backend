@@ -2,12 +2,14 @@ from django.urls import path
 from payment.views import ( CreateRazorpayOrder, VerifyRazorpayPaymentView,
                            PaymentSuccessOrderCreateView, PaymentFailedView, 
                            CreateRazorpayCheckOutPaymentView, VerifyCheckOutPaymentView,
-                           CheckOutPaymentSuccessOrderCreateView, OrdersView
+                           CheckOutPaymentSuccessOrderCreateView, OrdersView, 
+                           RazorpayPaymentRefundView
+
 
 )
 
 urlpatterns = [
-
+    path("refund/payment/",RazorpayPaymentRefundView.as_view(), name="refund"),
     path("get-all-orders/",OrdersView.as_view(), name="orders" ),
     path("create/order/", CreateRazorpayOrder.as_view(), name="create_payment_order"),
     

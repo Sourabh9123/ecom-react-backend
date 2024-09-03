@@ -5,9 +5,14 @@ from rest_framework.generics import GenericAPIView
 from storeapp.models import Product
 from storeapp.serializers import ProductSerializer
 from rest_framework import status
-from cartapp.models import Order, Orderitem, Transaction, PaymentFailure, Address
-from cartapp.models import Cart, Cartitems
+from cartapp.models import (Order, Orderitem, Transaction, PaymentFailure, Address,
+                            Cart, Cartitems, PaymentSuccess )
+
 from payment.serializers import OrderSerializers 
+from django.db.models import Q
+
+import requests
+from requests.auth import HTTPBasicAuth
 
 
 
@@ -19,6 +24,56 @@ RAZORPAY_KEY_SECRET = "uibpbafCZAypJUX226PdWxBs"
 
 
 
+
+class RazorpayPaymentRefundView(GenericAPIView):
+
+
+    def initiate_refund(self, payment_id, amount=None):
+        print(payment_id, amount)
+
+        # "user" : "user",  things need to add in data base
+        # "product_id" : "product_id"
+        # amount = int(amount*100)
+
+        try:
+            data = {
+                        "amount": amount,  
+                        "notes": {
+                            "reason": "Customer returned the product",
+                            
+                        }
+                    }
+            url = f"https://api.razorpay.com/v1/payments/{payment_id}/refund"
+            response = requests.post(url, auth=HTTPBasicAuth(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET), json=data)
+     
+            return response.json()
+        except Exception as e:
+           return {"error": str(e)}
+
+
+    def post(self, request, *args, **kwargs):
+        pass
+        user =  request.user
+        product_id = request.data.get("product_id")
+        print(product_id)
+       
+        prod_ins = Product.objects.get(id=product_id)
+        print(prod_ins,"----------------")
+        amount = prod_ins.price
+        amount = int(amount * 100)
+        print(amount)
+        obj_to_refund = PaymentSuccess.objects.filter(Q(user=user) & Q(products__id=product_id) ).order_by("-created_at").first()
+        print(obj_to_refund)
+        res = self.initiate_refund(obj_to_refund.transaction.payment_id, amount= amount)
+        print(res)
+        # need to fix this view
+        return Response({"status":"success"})
+
+
+
+
+
+    
 
 
 
@@ -172,6 +227,18 @@ class CheckOutPaymentSuccessOrderCreateView(GenericAPIView):
             owner=request.user
         )
         print(cart)
+        transaction = Transaction.objects.filter(payment_id =request.data.get('razorpay_payment_id') ).first()
+
+        payment_success = PaymentSuccess.objects.create(
+            user = request.user,
+            transaction = transaction,
+            amount = transaction.amount
+        )
+        print("prodids ", product_ids)
+        payment_success.products.set(product_ids)
+        payment_success.save()
+
+
 
         cart_items = Cartitems.objects.filter(cart=cart) 
         print(cart_items)
@@ -287,7 +354,17 @@ class PaymentSuccessOrderCreateView(GenericAPIView):
             quantity = 1,
 
         )
+
+        transaction = Transaction.objects.filter(payment_id =request.data.get('razorpay_payment_id') ).first()
+
+        payment_success = PaymentSuccess.objects.create(
+            user = request.user,
+            transaction = transaction,
+            amount = transaction.amount
+        )
        
+        payment_success.products.set([pro_inst.id])
+        payment_success.save()
 
         return Response({"payment": "success"}, status=status.HTTP_201_CREATED)
 

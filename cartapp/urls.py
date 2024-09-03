@@ -15,6 +15,7 @@ urlpatterns = [
     path('order/', PlaceOrderView.as_view(), ),
     path('order/transaction/', TransactionView.as_view(), ),
     path("order/transaction/failure/", PaymentFailureView.as_view(),),
+
     # http://127.0.0.1:8000/api/cart/order/transaction/failure
 
 ]
